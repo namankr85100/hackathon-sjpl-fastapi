@@ -10,10 +10,10 @@ async def root():
     return {"message": "Hello World"}
 
 @app.post('/project/validate-boq-sheet')
-async def process_data(file: UploadFile):
+async def validateBOQSheet(file: UploadFile):
     try:
-        if file.content_type == 'application/json':
-            return {'err': 'Invalid content type'}  
+        # if file.content_type == 'application/json':
+        #     return {'err': 'Invalid content type'}  
         sheet = file.file.read()  # Read raw bytes of the Excel file  
       
         if not sheet: 
