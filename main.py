@@ -1,6 +1,7 @@
-from fastapi import FastAPI
 import pandas as pd
-from fastapi import FastAPI, File
+from fastapi import FastAPI, Request, UploadFile
+import openpyxl
+import json
 
 app = FastAPI()
 
@@ -8,22 +9,36 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-@app.post('/upload/doq')
-def process_data(sheet: bytes = File(...)):
+@app.post('/project/validate-boq-sheet')
+async def process_data(file: UploadFile):
     try:
-        api_url = "https://services.smartjoules.org/m2/driver/v2/devices"  # Replace with the actual API endpoint URL
-        # Authentication (if required)
-        headers = {
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im5hbWFua3VtYXJAc21hcnRqb3VsZXMuaW4iLCJfcm9sZSI6ImFkbWluIiwibmFtZSI6Ik5hbWFuIEt1bWFyIiwiX3NpdGUiOiJzam8tZGVsIiwidW5pdFByZWYiOnsidGVtcGVyYXR1cmUiOiJkZWdDIiwiZGVsVGVtcGVyYXR1cmUiOiJkZWxDIiwicHJlc3N1cmUiOiJwc2kiLCJsZW5ndGgiOiJtIiwiY29ucyI6Imt2YWgiLCJmbG93IjoiZ2FsbG9uIC8gbWluIn0sIl9oXyI6InNqby1kZWxfMzZkNGY3MTJhYTM4MzFkZDVkN2U1MDc3ZTUzZjlkNmQiLCJpYXQiOjE3MDQzMTM1NjQsImV4cCI6MTcwNDQ4NjM2NH0.lMGAPvzPjVoeufkrVKEhALwvV22wusr6aTiCq8kzuPY"  # Replace with your API token or other credentials
-        }
+        if file.content_type == 'application/json':
+            return {'err': 'Invalid content type'}  
+        sheet = file.file.read()  # Read raw bytes of the Excel file  
+        print(str(sheet))      
+        # workbook = openpyxl.load_workbook(filename=file.filename, read_only=True)
+        # return {'message': 'Excel sheet processed successfully'} 
 
 
-    
-        # sheet = requests.get(api_url, headers=headers)
-        if not sheet:
-            print("Sheet not exist:", sheet.text)
+
+
+
+
+
+        # if (file.content_type == 'application/json'):
+        #     return {
+        #         'err': 'Invalid content type'
+        #     }
+        # else:
+        #  sheet = json.loads(file.file.read())
+        
+      
+        if not sheet: 
+            print("Sheet not exist") 
+            # TODO:
         else:
-            save_binary_data_to_file(sheet, 'output.xlsx')
+            print('in sheet')
+            save_binary_data_to_file(sheet, 'dummycopy2.xlsx')
 
 
 
@@ -33,6 +48,7 @@ def process_data(sheet: bytes = File(...)):
 
         # Load the Excel file into a DataFrame
         file_path_new = 'dummycopy2.xlsx'
+        file_path_new = sheet
         df_new = pd.read_excel(file_path_new)
 
         # # Define the relevant columns
@@ -68,7 +84,7 @@ def process_data(sheet: bytes = File(...)):
         return missing_data_df.head()  # Displaying the first few rows of the result (if any)
         # return {"message": "Hello World"}
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print("An error occurred:",e)
         return {"message": "Something went wrong during processing","error": e}  # Return error message
     
 def save_binary_data_to_file(response, file_path):
@@ -81,4 +97,5 @@ def save_binary_data_to_file(response, file_path):
     """
 
     with open(file_path, 'wb') as f:  # Open file in binary write mode
-        f.write(response.content)  # Write binary content to file
+        # f.write(response.content)  # Write binary content to file
+        f.write(response)  #
