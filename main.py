@@ -1,7 +1,6 @@
 import pandas as pd
-from fastapi import FastAPI, Request, UploadFile
-import openpyxl
-import json
+from fastapi import FastAPI, UploadFile, Form, HTTPException
+from services.boq_management import *
 
 app = FastAPI()
 
@@ -76,3 +75,30 @@ def save_binary_data_to_file(response, file_path):
     with open(file_path, 'wb') as f:  # Open file in binary write mode
         # f.write(response.content)  # Write binary content to file
         f.write(response)  #
+
+
+
+
+@app.post("/project/validate-boq")
+async def validate_boq(file: UploadFile, configuration: str = Form(...)):
+    try:
+       
+        sheet = file.file.read()  # Read raw bytes of the Excel file  
+        filePath = 'dummycopy2.xlsx'
+        if not sheet: 
+            print("Sheet not exist") 
+            raise HTTPException(status_code=404, detail="Sheet not exist")
+        else:
+            print('in sheet')
+            save_binary_data_to_file(sheet, filePath)
+
+
+        validation_result = validate_boq_file(filePath, configuration)  # Assuming it takes file data and additional_data
+
+        if validation_result:  # Assuming validation_result is True for success
+            return {"item_id": configuration, "message": "BOQ file is valid"}
+        else:
+            return {"message": "BOQ file is invalid"}
+
+    except Exception as e:
+        return {"error": str(e)}  # Handle any unexpected errors
