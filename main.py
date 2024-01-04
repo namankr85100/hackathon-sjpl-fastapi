@@ -15,23 +15,6 @@ async def process_data(file: UploadFile):
         if file.content_type == 'application/json':
             return {'err': 'Invalid content type'}  
         sheet = file.file.read()  # Read raw bytes of the Excel file  
-        print(str(sheet))      
-        # workbook = openpyxl.load_workbook(filename=file.filename, read_only=True)
-        # return {'message': 'Excel sheet processed successfully'} 
-
-
-
-
-
-
-
-        # if (file.content_type == 'application/json'):
-        #     return {
-        #         'err': 'Invalid content type'
-        #     }
-        # else:
-        #  sheet = json.loads(file.file.read())
-        
       
         if not sheet: 
             print("Sheet not exist") 
@@ -39,12 +22,6 @@ async def process_data(file: UploadFile):
         else:
             print('in sheet')
             save_binary_data_to_file(sheet, 'dummycopy2.xlsx')
-
-
-
-        # print('This is response')
-        # print(response)
-        # return json.dumps(response)
 
         # Load the Excel file into a DataFrame
         file_path_new = 'dummycopy2.xlsx'
